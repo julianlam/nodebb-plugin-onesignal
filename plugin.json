@@ -16,5 +16,9 @@
 	],
 	"scripts": [
 		"lib/client-settings.js"
-	]
+	],
+	"modules": {
+		"../client/onesignal/settings.js": "./lib/client-settings.js",
+		"../admin/plugins/onesignal.js": "./static/lib/admin.js"
+	}
 }

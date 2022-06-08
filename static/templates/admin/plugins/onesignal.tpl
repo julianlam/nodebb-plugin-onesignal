@@ -58,23 +58,3 @@
 		</div>
 	</div>
 </div>
-
-<script type="text/javascript">
-	require(['settings'], function(Settings) {
-		Settings.load('onesignal', $('.onesignal-settings'));
-
-		$('#save').on('click', function() {
-			Settings.save('onesignal', $('.onesignal-settings'), function() {
-				app.alert({
-					type: 'success',
-					alert_id: 'onesignal-saved',
-					title: 'Reload Required',
-					message: 'Please reload your NodeBB to complete configuration of the OneSignal plugin',
-					clickfn: function() {
-						socket.emit('admin.reload');
-					}
-				})
-			});
-		});
-	});
-</script>

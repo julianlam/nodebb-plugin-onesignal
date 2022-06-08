@@ -1,8 +1,8 @@
-var onesignal = require('./library'),
-	meta = module.parent.parent.require('./meta'),
-	nconf = module.parent.parent.require('nconf'),
+var onesignal = require('./library');
+const meta = require.main.require('./src/meta');
+const nconf = require.main.require('nconf');
 
-	Controllers = {};
+const Controllers = {};
 
 Controllers.renderACP = function(req, res) {
 	onesignal.getAssociatedUsers(function(err, users) {
@@ -29,14 +29,14 @@ Controllers.renderSettings = function(req, res) {
 };
 
 Controllers.getPlayerIds = function(req,res){
-    onesignal.getPlayerIds(req.user.uid, function(err, player_ids) {
-    	if(!err) {
-    		players = JSON.parse(player_ids);
-    		res.json(players);
-        }else{
-    		res.status(500).json(err);
+	onesignal.getPlayerIds(req.user.uid, function(err, player_ids) {
+		if(!err) {
+			players = JSON.parse(player_ids);
+			res.json(players);
+		}else{
+			res.status(500).json(err);
 		}
-    });
+	});
 }
 
 module.exports = Controllers;

@@ -27,7 +27,7 @@
 										<select class="form-control" name="onesignal:target" id="target">
 											<option value="">All associated devices</option>
 											<!-- BEGIN devices -->
-											<option value="@value">@value</option>
+											<option value="{@value}">{@value}</option>
 											<!-- END devices -->
 										</select>
 									</div>

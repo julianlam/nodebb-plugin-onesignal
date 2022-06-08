@@ -1,30 +1,30 @@
 "use strict";
 
-var db = module.parent.require('./database'),
-	meta = module.parent.require('./meta'),
-	user = module.parent.require('./user'),
-	posts = module.parent.require('./posts'),
-	topics = module.parent.require('./topics'),
-	translator = module.parent.require('../public/src/modules/translator'),
-	SocketPlugins = module.parent.require('./socket.io/plugins'),
-	globalMiddleware = module.parent.require('./middleware'),
+const db = require.main.require('./src/database');
+const meta = require.main.require('./src/meta');
+const user = require.main.require('./src/user');
+const posts = require.main.require('./src/posts');
+const topics = require.main.require('./src/topics');
+const translator = require.main.require('./src/translator');
+const SocketPlugins = require.main.require('./src/socket.io/plugins');
+const globalMiddleware = require.main.require('./src/middleware');
 
-	winston = module.parent.require('winston'),
-	nconf = module.parent.require('nconf'),
-	async = module.parent.require('async'),
-	request = module.parent.require('request'),
-	S = module.parent.require('string'),
-	querystring = require('querystring'),
-	path = require('path'),
-	cache = require('lru-cache'),
-	url = require('url'),
+const winston = require.main.require('winston');
+const nconf = require.main.require('nconf');
+const async = require('async');
+const request = require('request');
+const S = require('string');
+const querystring = require('querystring');
+const path = require('path');
+const cache = require('lru-cache');
+const url = require('url');
 
-	constants = Object.freeze({
-		authorize_url: 'https://www.onesignal.com/authorize',
-		push_url: 'https://onesignal.com/api/v1/notifications'
-	}),
+const constants = Object.freeze({
+	authorize_url: 'https://www.onesignal.com/authorize',
+	push_url: 'https://onesignal.com/api/v1/notifications'
+});
 
-	onesignal = {};
+const onesignal = {};
 
 onesignal.init = function(data, callback) {
 	var pluginMiddleware = require('./middleware')(data.middleware),
@@ -35,10 +35,10 @@ onesignal.init = function(data, callback) {
 	data.router.get('/api/admin/plugins/onesignal', pluginControllers.renderACP);
 
 	// User routes
-	data.router.get('/onesignal/settings', pluginMiddleware.hasConfig, globalMiddleware.authenticate,pluginMiddleware.setupRequired, data.middleware.buildHeader, pluginControllers.renderSettings);
-	data.router.get('/api/me/onesignal/devices', globalMiddleware.authenticate, pluginMiddleware.isLoggedIn, pluginControllers.getPlayerIds);
-    data.router.post('/api/me/onesignal/devices', globalMiddleware.authenticate, pluginMiddleware.isLoggedIn, pluginMiddleware.addDevice, pluginControllers.getPlayerIds);
-	
+	data.router.get('/onesignal/settings', pluginMiddleware.hasConfig, globalMiddleware.authenticateRequest, pluginMiddleware.setupRequired, data.middleware.buildHeader, pluginControllers.renderSettings);
+	data.router.get('/api/me/onesignal/devices', globalMiddleware.authenticateRequest, pluginMiddleware.isLoggedIn, pluginControllers.getPlayerIds);
+	data.router.post('/api/me/onesignal/devices', globalMiddleware.authenticateRequest, pluginMiddleware.isLoggedIn, pluginMiddleware.addDevice, pluginControllers.getPlayerIds);
+
 	// Config set-up
 	db.getObject('settings:onesignal', function(err, config) {
 		if (!err && config) {
@@ -187,7 +187,7 @@ function pushToUid(uid, notifObj, players, settings, app_id) {
 					app_id: app_id,
 					headings: {'en' : data.title ? data.title : ""} ,
 					contents: {'en': data.text },
-                	include_player_ids: JSON.parse(players),
+					include_player_ids: JSON.parse(players),
 					url: notifObj.path || nconf.get('url') + '/topic/' + data.topicSlug + '/' + data.postIndex,
 				};
 
@@ -200,9 +200,9 @@ function pushToUid(uid, notifObj, players, settings, app_id) {
 				} else if (result) {
 					try {
 						if (result.hasOwnProperty('errors')) {
-                            result.errors.forEach(function(err){
-                                winston.error('[plugins/onesignal] ' + err);
-                            });
+							result.errors.forEach(function(err){
+								winston.error('[plugins/onesignal] ' + err);
+							});
 						}
 					} catch (e) {
 						winston.error('[plugins/onesignal] ' + e);
@@ -241,11 +241,11 @@ onesignal.savePlayerId = function(uid, playerId, callback) {
 
 	async.waterfall([
 		function(next){
-        	db.isObjectField('users:onesignal:players', uid, next);
+			db.isObjectField('users:onesignal:players', uid, next);
 		},
 		function(exists, next){
 			if(exists){
-                onesignal.getPlayerIds(uid,next);
+				onesignal.getPlayerIds(uid,next);
 			}else{
 				next(null,JSON.stringify([]));
 			}
@@ -259,7 +259,7 @@ onesignal.savePlayerId = function(uid, playerId, callback) {
 };
 
 onesignal.getPlayerIds = function(uid, callback) {
-    db.getObjectField('users:onesignal:players', uid, callback);
+	db.getObjectField('users:onesignal:players', uid, callback);
 };
 
 onesignal.getUserDevices = function(uid, callback) {
